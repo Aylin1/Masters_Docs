@@ -2,3 +2,10 @@
 /*Papers
 /*lidar_env
 sam_vit_h_4b8939.pth
+/*results
+/masks
+/output/dem
+/old_notebooks
+/tiles
+/tree_masks
+/forest_masks
