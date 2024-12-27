@@ -121,13 +121,42 @@ def process_and_save(als_folder, dop_folder, output_base_dir):
         grid_x, grid_y, dem, dsm, chm, x_min, y_max, resolution = preprocess_lidar(als_file)
         slope, _ = compute_slope_aspect(dem, resolution)  # Aspect not required for this setup
 
-        # Visualize calculated layers
-        visualize_raster_layers(dem, dsm, chm, slope, title_prefix=base_name)
+        # Flip rasters vertically to align with the reference DOP image
+        dem = np.flipud(dem)
+        dsm = np.flipud(dsm)
+        chm = np.flipud(chm)
+        slope = np.flipud(slope)
 
-        # Save LiDAR derivatives as GeoTIFFs
-        save_as_geotiff(os.path.join(output_dir, f"{base_name}_dem.tif"), dem, x_min, y_max, resolution)
-        save_as_geotiff(os.path.join(output_dir, f"{base_name}_chm.tif"), chm, x_min, y_max, resolution)
-        save_as_geotiff(os.path.join(output_dir, f"{base_name}_slope.tif"), slope, x_min, y_max, resolution)
+        # Visualize calculated layers
+        #visualize_raster_layers(dem, dsm, chm, slope, title_prefix=base_name)
+
+        # Save LiDAR derivatives as GeoTIFFs aligned with the DOP image's metadata
+        save_as_geotiff_with_reference(
+            os.path.join(output_dir, f"{base_name}_dem.tif"), dem, dop_image
+        )
+        save_as_geotiff_with_reference(
+            os.path.join(output_dir, f"{base_name}_chm.tif"), chm, dop_image
+        )
+        save_as_geotiff_with_reference(
+            os.path.join(output_dir, f"{base_name}_slope.tif"), slope, dop_image
+        )
+
+def save_as_geotiff_with_reference(output_path, data, reference_image):
+    """
+    Save raster data as a GeoTIFF file aligned with the reference image's geospatial metadata.
+    """
+    with rasterio.open(reference_image) as ref:
+        transform = ref.transform
+        crs = ref.crs
+
+    with rasterio.open(
+        output_path, 'w', driver='GTiff',
+        height=data.shape[0], width=data.shape[1],
+        count=1, dtype='float32', crs=crs, transform=transform
+    ) as dst:
+        dst.write(data, 1)
+    print(f"Saved: {output_path}")
+
 
 def stack_and_save(als_folder, dop_folder, output_base_dir):
     matches = get_als_dop_matches(als_folder, dop_folder)
