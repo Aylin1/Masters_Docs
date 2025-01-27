@@ -1,6 +1,24 @@
 import os
 import re
 
+def find_rgbi_image(laz_data_path, dop_folder):
+    file_identifier = os.path.basename(laz_data_path).split('.')[0].split('_')[-1]
+    for root, _, files in os.walk(dop_folder):
+        for file in files:
+            if file_identifier in file and file.endswith('.tif'):
+                return os.path.join(root, file)
+    return None
+
+def get_als_dop_matches(als_folder, dop_folder):
+    matches = {}
+    for root, _, files in os.walk(als_folder):
+        for file in files:
+            if file.endswith('.laz'):
+                als_file_path = os.path.join(root, file)
+                dop_image_path = find_rgbi_image(als_file_path, dop_folder)
+                if dop_image_path:
+                    matches[als_file_path] = dop_image_path
+    return matches
 
 def get_als_tif_matches(root_dir, als_subfolder="als", tif_subfolder="ground_truth_masks/tree_masks", identifier_pattern=r'\d{5}-\d{4}', contains=None):
     """
@@ -34,7 +52,7 @@ def get_als_tif_matches(root_dir, als_subfolder="als", tif_subfolder="ground_tru
                 identifier = extract_file_identifier(als_file_path, identifier_pattern)
                 
                 if identifier is None:
-                    print(f"❌ Identifier not found for ALS file: {als_file_path}")
+                    print(f"Identifier not found for ALS file: {als_file_path}")
                     continue
                 
                 matched_tif_path = None
