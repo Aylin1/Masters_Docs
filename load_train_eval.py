@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, jaccard_score
 import tensorflow as tf
-
+import tensorflow.keras.backend as K
 
 
 def visualize_prediction(model, X, Y):
@@ -36,52 +36,18 @@ def visualize_prediction(model, X, Y):
         plt.tight_layout()
         plt.show()
 
+def dice_loss(y_true, y_pred, smooth=1e-6):
+    intersection = K.sum(y_true * y_pred)
+    union = K.sum(y_true) + K.sum(y_pred)
+    return 1 - (2. * intersection + smooth) / (union + smooth)
 
-def evaluate_predictions(model, X, Y, threshold=0.5):
-    """
-    Evaluate predictions of the segmentation model using IoU, Dice, Accuracy, Precision, and Recall.
-    
-    Parameters:
-    - model: Trained segmentation model.
-    - X: Input images (stacked raster).
-    - Y: Ground truth masks.
-    - threshold: Threshold to binarize predicted mask (default = 0.5).
-    
-    Returns:
-    - metrics: Dictionary containing evaluation metrics (IoU, Dice, Accuracy, Precision, Recall).
-    """
-    metrics = {'IoU': [], 'Dice': [], 'Accuracy': [], 'Precision': [], 'Recall': []}
-    
-    # Generate predictions for X
-    predictions = model.predict(X)
-    predictions = (predictions > threshold).astype(np.uint8)  # Binarize predictions
-    
-    for i in range(len(X)):
-        y_true = Y[i].squeeze().flatten()
-        y_pred = predictions[i].squeeze().flatten()
-        
-        iou = jaccard_score(y_true, y_pred)
-        dice = f1_score(y_true, y_pred)
-        accuracy = accuracy_score(y_true, y_pred)
-        precision = precision_score(y_true, y_pred, zero_division=1)
-        recall = recall_score(y_true, y_pred, zero_division=1)
-        
-        metrics['IoU'].append(iou)
-        metrics['Dice'].append(dice)
-        metrics['Accuracy'].append(accuracy)
-        metrics['Precision'].append(precision)
-        metrics['Recall'].append(recall)
-    
-    # Calculate the mean of all metrics
-    mean_metrics = {key: np.mean(values) for key, values in metrics.items()}
-    print("\n==== Model Evaluation Metrics ====")
-    for metric, value in mean_metrics.items():
-        print(f"{metric}: {value:.4f}")
-    
-    return metrics, mean_metrics
+def combined_dice_bce_loss(y_true, y_pred):
+    dice = dice_loss(y_true, y_pred)
+    bce = tf.keras.losses.BinaryCrossentropy()(y_true, y_pred)
+    return 0.5 * dice + 0.5 * bce  # Adjust weighting as needed
 
 
-def train_and_evaluate(X_train, Y_train, X_val, Y_val, build_model_fn, batch_size=8, epochs=25, learning_rate=0.001, threshold=0.5, visualize_pred=True):
+def train_and_evaluate(X_train, Y_train, X_val, Y_val, build_model_fn, batch_size=4, epochs=50, learning_rate=0.0001, threshold=0.5, visualize_pred=True):
     """
     Train a segmentation model, evaluate its performance, and return results including metrics, history, and predictions.
 
@@ -102,7 +68,9 @@ def train_and_evaluate(X_train, Y_train, X_val, Y_val, build_model_fn, batch_siz
     # Build and compile the model
     input_shape = X_train.shape[1:]
     model = build_model_fn(input_shape)
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate), loss='binary_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate), 
+              loss=combined_dice_bce_loss, 
+              metrics=['accuracy'])
 
     # Train the model with validation split
     print("Training the model...")
@@ -148,8 +116,7 @@ def train_and_evaluate(X_train, Y_train, X_val, Y_val, build_model_fn, batch_siz
         predicted_images.append({
             "input_image": X_val[i],
             "ground_truth": Y_val[i],
-            "predicted_mask": predictions[i],
-            "predicted_mask_binarized": predictions_binarized[i]
+            "predicted_mask": predictions[i]
         })
 
     # Return results as a dictionary
@@ -159,40 +126,3 @@ def train_and_evaluate(X_train, Y_train, X_val, Y_val, build_model_fn, batch_siz
         "history": history.history,      # Training history (loss, accuracy, etc.)
         "predicted_images": predicted_images  # Sample predicted images for visualization
     }
-
-
-# Function to plot the comparison of different augmentation histories
-def plot_comparison_history(history_dict):
-    """
-    Plot the comparison of loss and accuracy for different augmentations.
-
-    Args:
-        history_dict (dict): Dictionary containing loss and accuracy histories for each augmentation.
-    """
-    # Plot the losses for different augmentations
-    plt.figure(figsize=(12, 6))
-
-    # Losses
-    plt.subplot(1, 2, 1)
-    for i, loss in enumerate(history_dict['loss']):
-        plt.plot(loss, label=f"Augmentation {i+1} Training Loss")
-    for i, val_loss in enumerate(history_dict['val_loss']):
-        plt.plot(val_loss, label=f"Augmentation {i+1} Validation Loss", linestyle='--')
-    plt.title('Loss Comparison')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.legend()
-
-    # Accuracies
-    plt.subplot(1, 2, 2)
-    for i, accuracy in enumerate(history_dict['accuracy']):
-        plt.plot(accuracy, label=f"Augmentation {i+1} Training Accuracy")
-    for i, val_accuracy in enumerate(history_dict['val_accuracy']):
-        plt.plot(val_accuracy, label=f"Augmentation {i+1} Validation Accuracy", linestyle='--')
-    plt.title('Accuracy Comparison')
-    plt.xlabel('Epochs')
-    plt.ylabel('Accuracy')
-    plt.legend()
-
-    plt.tight_layout()
-    plt.show()

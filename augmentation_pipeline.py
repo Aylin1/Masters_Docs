@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import os
 from albumentations import (
     Compose, HorizontalFlip, VerticalFlip, ShiftScaleRotate,
     RandomBrightnessContrast, GaussNoise, Blur, MotionBlur
@@ -21,9 +19,9 @@ def augment_dataset(X, Y, config):
     X_aug, Y_aug = [], []
 
     for i in range(len(X)):
-        rgbi = X[i][..., :4]  # Bands 1-4 (RGBI)
-        chm = X[i][..., 4:]   # Band 5 (CHM)
-        mask = Y[i]           # Ground truth mask
+        rgbi = X[i][..., :4].astype(np.float32)  # Convert to float32
+        chm = X[i][..., 4:].astype(np.float32)   # Convert CHM to float32
+        mask = Y[i]                              # Ground truth mask
 
         # Define spatial augmentation pipeline (applies to both X & Y)
         spatial_augment = Compose([
@@ -44,7 +42,7 @@ def augment_dataset(X, Y, config):
                 contrast_limit=config.get("RandomContrast", {}).get("contrast_limit", 0),
                 p=1.0
             ),
-            GaussNoise(var_limit=config.get("GaussNoise", {}).get("var_limit", (0, 0)), p=1.0),
+            GaussNoise(var_limit=tuple(map(float, config.get("GaussNoise", {}).get("var_limit", (0, 0)))), p=1.0),
             Blur(blur_limit=config.get("Blur", {}).get("blur_limit", 0), p=1.0),
             MotionBlur(blur_limit=config.get("MotionBlur", {}).get("blur_limit", 0), p=1.0)
         ])
@@ -59,6 +57,9 @@ def augment_dataset(X, Y, config):
         augmented = spatial_augment(image=rgbi, mask=mask)
         rgbi_aug = rgbi_augment(image=augmented["image"])["image"]
         chm_aug = chm_augment(image=chm)["image"]  # CHM gets separate augment
+
+        # Ensure CHM is in float32 format after augmentation
+        chm_aug = chm_aug.astype(np.float32)
 
         # Merge augmented bands back together
         X_aug.append(np.concatenate([rgbi_aug, chm_aug], axis=-1))

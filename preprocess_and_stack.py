@@ -290,7 +290,7 @@ def load_raster_data(file_path):
     return np.moveaxis(data, 0, -1)  # Move channel axis to the end
 
 
-def load_data(matches, tile_size=(1250, 1250), resize_shape=(256, 256), use_tiling=False, save_tiles=False, save_dir="data/Tschernitz/tiles/train_test_tiled"):
+def load_data(matches, tile_size=(1250, 1250), resize_shape=(512, 512), use_tiling=False, save_tiles=False, save_dir="data/Tschernitz/tiles/train_test_tiled"):
     """
     Loads and processes dataset by tiling images and resizing each tile.
 

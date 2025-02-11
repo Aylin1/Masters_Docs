@@ -80,10 +80,10 @@ def get_als_tif_matches(root_dir, als_subfolder="als", tif_subfolder="ground_tru
                 # Store the match if a corresponding TIF file is found
                 if matched_tif_path:
                     matches[als_file_path] = matched_tif_path  # Store the full path as a single string
-                    print(f"✅ ALS File: {als_file_path} -> Matched TIF: {matched_tif_path}")
+                    print(f"ALS File: {als_file_path} -> Matched TIF: {matched_tif_path}")
                     print("")
                 else:
-                    print(f"❌ No match found for identifier {identifier} for ALS file: {als_file_path}")
+                    print(f"No match found for identifier {identifier} for ALS file: {als_file_path}")
 
     return matches
 
@@ -101,13 +101,13 @@ def extract_file_identifier(file_path, identifier_pattern):
     identifier_from_file = re.search(identifier_pattern, file_name)
     
     if identifier_from_folder:
-        print(f"📂 Extracted identifier '{identifier_from_folder.group()}' from folder: {folder_name}")
+        print(f"Extracted identifier '{identifier_from_folder.group()}' from folder: {folder_name}")
         return identifier_from_folder.group()
     elif identifier_from_file:
-        print(f"📄 Extracted identifier '{identifier_from_file.group()}' from file: {file_name}")
+        print(f"Extracted identifier '{identifier_from_file.group()}' from file: {file_name}")
         return identifier_from_file.group()
     else:
-        print(f"❌ Could not extract identifier from: {file_path}")
+        print(f"Could not extract identifier from: {file_path}")
         return None
 
 
@@ -143,7 +143,7 @@ def get_tif_file_matches(root_dir, folder1, folder2, identifier_pattern=r'\d{5}-
             tif1_path = os.path.normpath(os.path.join(root1, file1))
             identifier = re.search(identifier_pattern, file1)
             if not identifier:
-                print(f"❌ No identifier found in file: {file1}")
+                print(f"No identifier found in file: {file1}")
                 continue
 
             identifier = identifier.group()
@@ -173,6 +173,6 @@ def get_tif_file_matches(root_dir, folder1, folder2, identifier_pattern=r'\d{5}-
             if matched_tif2_path:
                 matches[tif1_path] = matched_tif2_path
             else:
-                print(f"❌ No match found for identifier {identifier} in {tif1_path}")
+                print(f"No match found for identifier {identifier} in {tif1_path}")
 
     return matches
