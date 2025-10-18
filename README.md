@@ -1,4 +1,4 @@
-# Evaluating the Impact of Data Augmentation on Forest Segmentation Using Aerial Imagery
+# Evaluating the Impact of Data Augmentation on Forest Segmentation Using Aerial Imagery and LiDAR data
 
 **Author:** Aylin Gülüm  
 **Institution:** Hochschule für Technik und Wirtschaft Berlin (HTW Berlin)  
