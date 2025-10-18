@@ -20,17 +20,17 @@ The study highlights the significance of data fusion and augmentation design in 
 
 ---
 
-Repository Structure
+## Repository Structure
 
 masters_docs/
-│
-├── notebooks/ Jupyter notebooks for preprocessing, visualization, and exploration
-├── models/ U-Net, HRNet, and FusionNet model architectures
-├── training/ Scripts for model training and evaluation
-├── results/ Evaluation metrics, output masks, and visualization results
-├── utils/ Helper scripts for augmentation, patch extraction, and I/O
-├── requirements.txt Python dependencies
-└── README.md # Project documentation (this file)
+├── notebooks/          # Preprocessing, visualization, and exploratory notebooks
+├── models/             # U-Net, HRNet, and FusionNet model architectures
+├── training/           # Scripts for model training and evaluation
+├── results/            # Visual results, metrics, and output masks
+├── utils/              # Helper scripts for augmentation, I/O, and patch extraction
+├── requirements.txt    # Python dependencies
+└── README.md           # Project documentation
+
 ---
 
 ## Methodology
