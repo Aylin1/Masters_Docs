@@ -131,16 +131,18 @@ def process_and_save(als_folder, dop_folder, output_base_dir, voxel_size=1):
 
         # -- Save LiDAR derivatives as GeoTIFFs aligned with the DOP
         dem_path = os.path.join(output_dir, f"{base_name}_dem.tif")
+        dsm_path = os.path.join(output_dir, f"{base_name}_dsm.tif")
         chm_path = os.path.join(output_dir, f"{base_name}_chm.tif")
         slope_path = os.path.join(output_dir, f"{base_name}_slope.tif")
         aspect_path = os.path.join(output_dir, f"{base_name}_aspect.tif")
 
         save_as_geotiff_with_reference(dem_path, dem, dop_image)
+        save_as_geotiff_with_reference(dsm_path, dsm, dop_image)
         save_as_geotiff_with_reference(chm_path, chm, dop_image)
         save_as_geotiff_with_reference(slope_path, slope, dop_image)
         save_as_geotiff_with_reference(aspect_path, aspect, dop_image)
         
-        print(f"Saved DEM, CHM, and slope to {output_dir}.\n")
+        print(f"Saved DEM, DSM, CHM, and slope to {output_dir}.\n")
 
 
 def save_as_geotiff_with_reference(output_path, data, reference_image):

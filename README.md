@@ -1,39 +1,83 @@
-This repository contains documentation, code references, and supplementary materials from my Master's thesis submitted to HTW Berlin, titled:
+# Evaluating the Impact of Data Augmentation on Forest Segmentation Using Aerial Imagery
 
-**"Evaluating the Impact of Data Augmentation on Forest Segmentation Using Aerial Imagery and LiDAR Data"**
+**Author:** Aylin Gülüm  
+**Institution:** Hochschule für Technik und Wirtschaft Berlin (HTW Berlin)  
+**Program:** M.Sc. Project Management & Data Science  
+**Thesis Duration:** October 2024 – February 2025  
+**Supervisor:** Prof. Stefan Wittenberg  
+**Second Supervisor:** Prof. Haack  
 
-## 📘 Project Overview
+---
 
-The research investigates how various data augmentation strategies and the integration of multimodal geospatial data (RGBI orthophotos and LiDAR point clouds) affect the performance of deep learning-based forest segmentation models. The study compares U-Net, U-Net-HRNet, and U-Net-FusionNet architectures, focusing on:
+## Abstract
 
-- **Segmentation accuracy under class imbalance**
-- **Influence of seasonal and spectral discrepancies**
-- **Effectiveness of structural features (CHM, slope, aspect)**
-- **Augmentation strategies (spatial, spectral, noise-based)**
+This thesis investigates the impact of data augmentation and multimodal data fusion on forest segmentation performance using aerial imagery and LiDAR data.  
+Through the integration of RGBI orthophotos and LiDAR-derived canopy height models (CHM), the study explores how combining spectral and structural features affects model accuracy, robustness, and generalization.  
+Three architectures were compared — **U-Net**, **U-Net-HRNet**, and **U-Net-FusionNet** — under various augmentation strategies to assess performance on high-resolution forest segmentation tasks.
 
-## 🧠 Key Contributions
+Results show that integrating LiDAR-derived CHM with RGBI imagery improves segmentation accuracy by 5–7%, with **U-Net-FusionNet** achieving the best results (IoU: 0.88, Dice: 0.92).  
+The study highlights the significance of data fusion and augmentation design in enhancing segmentation for environmental monitoring and sustainable forestry.
 
-- Developed a structured preprocessing pipeline for LiDAR and DOP data
-- Generated DEM, DSM, CHM, slope, and aspect rasters
-- Explored thresholding methods for binary segmentation masks
-- Evaluated model performance using metrics like IoU and F1-score
-- Analyzed the role of tree visibility and species density across modalities
+---
 
+## Repository Structure
 
-> **Note**: Raw datasets are not included due to size and licensing. Please contact for access or reproduction instructions.
+masters_docs/
+│
+├── notebooks/ # Preprocessing, visualization, and exploratory notebooks
+├── models/ # U-Net, HRNet, and FusionNet model architectures
+├── training/ # Scripts for model training and evaluation
+├── results/ # Visual results, metrics, and output masks
+├── utils/ # Helper scripts for augmentation, I/O, and patch extraction
+├── requirements.txt # Python dependencies
+├── thesis.pdf # Full thesis document (optional, if license allows)
+└── README.md # Project documentation
+---
 
-## 📌 Highlights
+## Methodology
 
-- Preprocessing aligned with ALS-DOP metadata for accurate georeferencing
-- Integration of voxel-based interpolation and grid rasterization
-- Comparative analysis of augmentation techniques (rotation, scaling, spectral shifts)
-- Addressed seasonal mismatch in RGB and CHM tree visibility
+1. **Data Preprocessing**
+   - Alignment of RGBI and LiDAR tiles  
+   - CHM generation from LiDAR point clouds  
+   - Patch extraction and normalization  
+   - Forest mask binarization for segmentation tasks  
 
-## 🛠 Technologies Used
+2. **Model Architectures**
+   - **U-Net:** Baseline convolutional segmentation model  
+   - **U-Net-HRNet:** Enhanced encoder with high-resolution feature retention  
+   - **U-Net-FusionNet:** Late-fusion network combining spectral and structural inputs  
 
-- **Languages**: Python, LaTeX
-- **Libraries**: `laspy`, `rasterio`, `numpy`, `scikit-image`, `matplotlib`, `TensorFlow`
-- **Tools**: QGIS, PDAL, Jupyter, VSCode, Git
+3. **Augmentation Techniques**
+   - Geometric (rotation, flips, scaling)  
+   - Photometric (brightness and contrast shifts)  
+   - Noise-based (Gaussian and salt-and-pepper noise)  
+   - Spectral dropout for multispectral data  
 
-**"Remote sensing and deep learning can together uncover the invisible layers of our forests."** 🌲
+4. **Evaluation Metrics**
+   - Intersection over Union (IoU)  
+   - Dice Coefficient  
+   - Precision and Recall  
 
+---
+
+## Dataset
+
+**Region:** Tschernitz, Brandenburg (Germany)  
+**Data Source:** [Landesvermessung und Geobasisinformation Brandenburg (LGB)](https://geobasis-bb.de)  
+**Portal:** [GeoPortal Brandenburg – Open Data](https://geoportal.brandenburg.de)  
+**License:** *Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0)*  
+
+**Data Description:**
+- Aerial orthophotos (RGBI, 20–30 cm resolution)  
+- LiDAR-derived CHM (~1 m resolution)  
+- Ground-truth forest masks from official land cover datasets  
+
+> Note: Raw data cannot be redistributed here due to license restrictions.  
+> Users may download identical datasets directly from the LGB Open Data Portal.
+
+---
+
+## Installation and Reproduction
+
+This project was developed with **Python 3.10** and **PyTorch 2.2**.  
+Clone the repository and install dependencies as follows:
