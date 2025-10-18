@@ -7,6 +7,7 @@ import tensorflow as tf
 import os
 from get_file_matches import get_als_dop_matches
 import time
+import matplotlib.pyplot as plt
 
 def preprocess_lidar(file_path, voxel_size):
     """
