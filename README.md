@@ -4,8 +4,7 @@
 **Institution:** Hochschule für Technik und Wirtschaft Berlin (HTW Berlin)  
 **Program:** M.Sc. Project Management & Data Science  
 **Thesis Duration:** October 2024 – February 2025  
-**Supervisor:** Prof. Stefan Wittenberg  
-**Second Supervisor:** Prof. Haack  
+ 
 
 ---
 
@@ -18,18 +17,34 @@ Three architectures were compared — **U-Net**, **U-Net-HRNet**, and **U-Net-Fu
 Results show that integrating LiDAR-derived CHM with RGBI imagery improves segmentation accuracy by 5–7%, with **U-Net-FusionNet** achieving the best results (IoU: 0.88, Dice: 0.92).  
 The study highlights the significance of data fusion and augmentation design in enhancing segmentation for environmental monitoring and sustainable forestry.
 
+**Key contributions:**
+- Comparison of multiple model architectures for forest segmentation  
+- Analysis of augmentation strategies and multimodal data fusion  
+- Reproducible pipeline for preprocessing, training, and evaluation
+
 ---
 
 ## Repository Structure
 
 masters_docs/
-- ├── notebooks/          # Preprocessing, visualization, and exploratory notebooks
-- ├── models/           # U-Net, HRNet, and FusionNet model architectures
-- ├── training/         # Scripts for model training and evaluation
-- ├── results/         # Visual results, metrics, and output masks
-- ├── utils/           # Helper scripts for augmentation, I/O, and patch extraction
-- ├── requirements.txt    # Python dependencies
-- └── README.md           # Project documentation
+
+models_training/              # Trained model checkpoints and logs
+- ├── load_train_eval.py            # Script for loading, training, and evaluating models
+
+notebooks/                     # Jupyter notebooks for exploration and preprocessing
+-    ├── Experiments.ipynb         # Experiment notebooks with model evaluation
+-    ├── exploration_las_files.ipynb  # Exploration of LiDAR LAS files
+-    ├── preprocess_data.ipynb    # Data preprocessing pipeline
+-    └── samgeo_ground_truth.ipynb # Ground-truth mask exploration
+
+utils/                         # Utility scripts for augmentation and preprocessing
+-    ├── augmentation_pipeline.py  # Data augmentation functions
+-    ├── get_file_matches.py       # Helper for file matching
+-    └── preprocess_and_stack.py   # Functions for preprocessing and stacking inputs
+
+README.md                        # Project documentation
+
+requirements.txt                 # Python dependencies
 
 ---
 
