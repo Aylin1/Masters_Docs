@@ -26,9 +26,6 @@ The study highlights the significance of data fusion and augmentation design in 
 
 masters_docs/
 
-models_training/              # Trained model checkpoints and logs
-- ├── load_train_eval.py            # Script for loading, training, and evaluating models
-
 notebooks/                     # Jupyter notebooks for exploration and preprocessing
 -    ├── Experiments.ipynb         # Experiment notebooks with model evaluation
 -    ├── exploration_las_files.ipynb  # Exploration of LiDAR LAS files
@@ -38,7 +35,9 @@ notebooks/                     # Jupyter notebooks for exploration and preproces
 utils/                         # Utility scripts for augmentation and preprocessing
 -    ├── augmentation_pipeline.py  # Data augmentation functions
 -    ├── get_file_matches.py       # Helper for file matching
--    └── preprocess_and_stack.py   # Functions for preprocessing and stacking inputs
+-    ├── load_train_eval.py            # Script for loading, training, and evaluating models
+-    ├── models.py  # Deep learning models (Unet and derivatives)
+-    ├── preprocess_and_stack.py   # Functions for preprocessing and stacking inputs
 
 README.md                        # Project documentation
 
