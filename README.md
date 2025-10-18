@@ -20,7 +20,7 @@ The study highlights the significance of data fusion and augmentation design in 
 
 ---
 
-## Repository Structure
+Repository Structure
 
 masters_docs/
 │
