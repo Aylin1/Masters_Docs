@@ -3,7 +3,6 @@
 **Author:** Aylin Gülüm  
 **Institution:** Hochschule für Technik und Wirtschaft Berlin (HTW Berlin)  
 **Program:** M.Sc. Project Management & Data Science  
-**Thesis Duration:** October 2024 – February 2025  
  
 
 ---
@@ -14,7 +13,6 @@ This thesis investigates the impact of data augmentation and multimodal data fus
 Through the integration of RGBI orthophotos and LiDAR-derived canopy height models (CHM), the study explores how combining spectral and structural features affects model accuracy, robustness, and generalization.  
 Three architectures were compared — **U-Net**, **U-Net-HRNet**, and **U-Net-FusionNet** — under various augmentation strategies to assess performance on high-resolution forest segmentation tasks.
 
-Results show that integrating LiDAR-derived CHM with RGBI imagery improves segmentation accuracy by 5–7%, with **U-Net-FusionNet** achieving the best results (IoU: 0.88, Dice: 0.92).  
 The study highlights the significance of data fusion and augmentation design in enhancing segmentation for environmental monitoring and sustainable forestry.
 
 **Key contributions:**
