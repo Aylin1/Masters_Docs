@@ -1,9 +1,8 @@
-# Evaluating the Impact of Data Augmentation on Forest Segmentation Using Aerial Imagery
+# Evaluating the Impact of Data Augmentation on Forest Segmentation Using Aerial Imagery and LiDAR data
 
 **Author:** Aylin Gülüm  
 **Institution:** Hochschule für Technik und Wirtschaft Berlin (HTW Berlin)  
 **Program:** M.Sc. Project Management & Data Science  
-**Thesis Duration:** October 2024 – February 2025  
  
 
 ---
@@ -14,7 +13,6 @@ This thesis investigates the impact of data augmentation and multimodal data fus
 Through the integration of RGBI orthophotos and LiDAR-derived canopy height models (CHM), the study explores how combining spectral and structural features affects model accuracy, robustness, and generalization.  
 Three architectures were compared — **U-Net**, **U-Net-HRNet**, and **U-Net-FusionNet** — under various augmentation strategies to assess performance on high-resolution forest segmentation tasks.
 
-Results show that integrating LiDAR-derived CHM with RGBI imagery improves segmentation accuracy by 5–7%, with **U-Net-FusionNet** achieving the best results (IoU: 0.88, Dice: 0.92).  
 The study highlights the significance of data fusion and augmentation design in enhancing segmentation for environmental monitoring and sustainable forestry.
 
 **Key contributions:**
@@ -28,9 +26,6 @@ The study highlights the significance of data fusion and augmentation design in 
 
 masters_docs/
 
-models_training/              # Trained model checkpoints and logs
-- ├── load_train_eval.py            # Script for loading, training, and evaluating models
-
 notebooks/                     # Jupyter notebooks for exploration and preprocessing
 -    ├── Experiments.ipynb         # Experiment notebooks with model evaluation
 -    ├── exploration_las_files.ipynb  # Exploration of LiDAR LAS files
@@ -40,7 +35,9 @@ notebooks/                     # Jupyter notebooks for exploration and preproces
 utils/                         # Utility scripts for augmentation and preprocessing
 -    ├── augmentation_pipeline.py  # Data augmentation functions
 -    ├── get_file_matches.py       # Helper for file matching
--    └── preprocess_and_stack.py   # Functions for preprocessing and stacking inputs
+-    ├── load_train_eval.py            # Script for loading, training, and evaluating models
+-    ├──    models.py  # Deep learning models (Unet and derivatives)
+-    ├── preprocess_and_stack.py   # Functions for preprocessing and stacking inputs
 
 README.md                        # Project documentation
 
