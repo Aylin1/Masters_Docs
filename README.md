@@ -171,7 +171,7 @@ Differences between spectral and structural representations reveal important cha
 
 
 ## Installation and Reproduction
-This project was developed with **Python 3.10** and **PyTorch 2.2**.
+This project was developed with Python 3.10 and TensorFlow 2.10.
 
 Presentation of this thesis is available in the file:  
 [**thesis_presentation.pdf**](visuals/thesis_presentation.pdf)
