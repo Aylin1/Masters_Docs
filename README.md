@@ -185,8 +185,10 @@ The Improved FusionNet U-Net replaces all convolution blocks with residual block
 
    - All models were trained using aligned, multimodal raster stacks and evaluated consistently across splits.
 
+**Architectural Sensitivity & Convergence Analysis:**
+
 <p align="left">
-  <img src="visuals\test_loss.png" alt="Spectral and Structural Insights" width="300">
+  <img src="visuals\test_loss.png" alt="Spectral and Structural Insights" width="500">
 </p> 
 
 Training Setup
@@ -199,16 +201,18 @@ Learning Rate Selection
 
 
 <p align="left">
-  <img src="visuals\convergence.png" alt="Spectral and Structural Insights" width="300">
+  <img src="visuals\convergence.png" alt="Spectral and Structural Insights" width="500">
 </p>
 
-Convergence Behavior
-• Rapid loss drop in first 20 epochs, then plateau
-• 50 epochs chosen to balance convergence vs. overfitting
+All three U-Net architectures demonstrate stable convergence behaviors within 100 epochs, with a rapid loss drop in the first 20 epochs followed by a steady plateau around 0.12–0.15.
 
-Threshold Tuning (IoU vs. Thresh.)
-• Peak IoU at 0.4–0.5 for all models
+  - **U-Net-FusionNet** (incorporating residual connections) exhibits the fastest and most stable convergence, achieving the lowest overall training and testing loss values early on and maintaining low test loss variability.
+  - **U-Net-HRNet** (incorporating channel-wise Squeeze-and-Excitation attention) shows slightly higher training and testing loss variations during the early epochs but stabilizes effectively after epoch 25.
 
+- 50 epochs chosen to balance convergence vs. overfitting for all models
+
+Threshold Tuning (IoU vs. Thresh.):
+- Peak IoU at 0.4–0.5 for all models
 ---
 
 ### 6. **Augmentation Strategy**  
@@ -243,23 +247,18 @@ Threshold Tuning (IoU vs. Thresh.)
 <<<<<<< Updated upstream
 ### 9. **Results Overview**  
 * **Multimodal Contribution (Band Comparison):** Integrating LiDAR-derived structural features notably improves segmentation accuracy compared to spectral-only data. For the lightweight U-Net baseline:
-    * Moving from **RGB** (IoU: 69.1%) to **RGBI** yields a modest boost of 1.3 percentage points (IoU: 70.4%).
-    * Adding the Canopy Height Model (**RGBI + CHM**) provides the most significant performance leap, driving IoU up to **75.1%** (a total increase of 6.0 percentage points from RGB, and an increase from 69.1% to 75.1% for IoU and 75.5% to 81.8% for Dice). 
-    * The inclusion of further topographical layers (Slope and Aspect) beyond the CHM results in negligible performance gains (**RGBI + CHM + Slope** centers around 75.0% IoU).
-
-* **Architectural Sensitivity & Convergence:** All three U-Net architectures demonstrate stable convergence behaviors within 100 epochs, with a rapid loss drop in the first 20 epochs followed by a steady plateau around 0.12–0.15.
-    * **U-Net-FusionNet** (incorporating residual connections) exhibits the fastest and most stable convergence, achieving the lowest overall training and testing loss values early on and maintaining low test loss variability.
-    * **U-Net-HRNet** (incorporating channel-wise Squeeze-and-Excitation attention) shows slightly higher training and testing loss variations during the early epochs but stabilizes effectively after epoch 25.
+    - * Moving from **RGB** (IoU: 69.1%) to **RGBI** yields a modest boost of 1.3 percentage points (IoU: 70.4%).
+    - * Adding the Canopy Height Model (**RGBI + CHM**) provides the most significant performance leap, driving IoU up to **75.1%** (a total increase of 6.0 percentage points from RGB, and an increase from 69.1% to 75.1% for IoU and 75.5% to 81.8% for Dice). 
+    - * The inclusion of further topographical layers (Slope and Aspect) beyond the CHM results in negligible performance gains (**RGBI + CHM + Slope** centers around 75.0% IoU).
 
 * **Data Augmentation Sensitivity:** The architectures react differently to geometric and photometric transformations, indicating that augmentation intensity must be carefully tailored to structural depth:
-    * **Lightweight U-Net:** Benefits consistently from simple geometric flips, with **VerticalFlip** boosting its metric to **78.4** (up from 75.3 with no augmentation).
-    * **U-Net-HRNet:** Exhibits a high affinity for smoothing and blurring mechanisms rather than spatial distortions. Applying **Blur** yields its highest overall performance score of **80.6** (up from 68.7 with no augmentation).
-    * **U-Net-FusionNet:** Demonstrates high baseline robustness without augmentations (77.1), but is severely degraded by aggressive spatial distortions. Applying **Scale** drops its performance sharply to a critical low of **68.6** (highlighted in red), indicating that scaling distortions disrupt its internal residual feature maps. Heavy noise injections (e.g., GaussNoise) universally harm performance across all three models.
+    - * **Lightweight U-Net:** Benefits consistently from simple geometric flips, with **VerticalFlip** boosting its metric to **78.4** (up from 75.3 with no augmentation).
+    - * **U-Net-HRNet:** Exhibits a high affinity for smoothing and blurring mechanisms rather than spatial distortions. Applying **Blur** yields its highest overall performance score of **80.6** (up from 68.7 with no augmentation).
+    - * **U-Net-FusionNet:** Demonstrates high baseline robustness without augmentations (77.1), but is severely degraded by aggressive spatial distortions. Applying **Scale** drops its performance sharply to a critical low of **68.6** (highlighted in red), indicating that scaling distortions disrupt its internal residual feature maps. Heavy noise injections (e.g., GaussNoise) universally harm performance across all three models.
 
 ## Installation and Reproduction
 This project was developed with Python 3.10 and TensorFlow 2.10.
 
 =======
->>>>>>> Stashed changes
 Presentation of this thesis is available in the file:  
 [**thesis_presentation.pdf**](visuals/thesis_presentation.pdf)
