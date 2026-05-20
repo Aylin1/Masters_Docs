@@ -354,7 +354,7 @@ Public data sources:
 
 Processed dataset files are not included in this repository due to size constraints. Preprocessing instructions are in `notebooks/preprocess_data.ipynb`.
 
-References
+## References
 Bourgoin, C. (2026). GFC2020: A global map of forest land use for year 2020 to support the EU Deforestation Regulation. Earth System Science Data, 18, 1331.
 
 Pilaš, I., Gašparović, M., Novkinić, A., & Klobučar, D. (2020). Mapping of the canopy openings in mixed beech–fir forest at Sentinel-2 subpixel level using UAV and machine learning approach. Remote Sensing, 12(23), 3925. https://doi.org/10.3390/rs12233925
