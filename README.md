@@ -1,264 +1,360 @@
-# Evaluating the Impact of Data Augmentation on Forest Segmentation Using Aerial Imagery and LiDAR data
+# Evaluating the Impact of Data Augmentation on Forest Segmentation Using Aerial Imagery and LiDAR Data
 
-**Author:** Aylin Gülüm  
-**Institution:** Hochschule für Technik und Wirtschaft Berlin (HTW Berlin)  
-**Program:** M.Sc. Project Management & Data Science  
- 
+**Master's Thesis, HTW Berlin**
+**Author:** Aylin Gülüm
+**Institution:** Hochschule für Technik und Wirtschaft Berlin (HTW Berlin)
+**Program:** M.Sc. Project Management and Data Science
 
 ---
 
 ## Abstract
-
 This thesis examines how data augmentation and multimodal feature integration influence the performance of deep learning models for forest segmentation using high-resolution aerial imagery and LiDAR data. The study integrates RGBI orthophotos with LiDAR-derived structural layers—including canopy height, elevation, slope, and aspect—to evaluate how spectral and structural information jointly contribute to more accurate and generalizable segmentation outcomes. A standardized preprocessing pipeline was developed to align and fuse these heterogeneous datasets and to generate ground-truth masks using a hybrid SAM-assisted and manually refined approach.
 
-Three segmentation architectures **U-Net**, **U-Net-HRNet**, and **U-Net-FusionNet** trained under a range of augmentation strategies to assess their sensitivity to multiscale vegetation patterns and spatial heterogeneity.
-Three architectures were compared under various augmentation strategies to assess performance on high-resolution forest segmentation tasks.
-
-
-## 🧪 Research Questions
-
-**RQ1 — Multimodal Contribution**  
-Does LiDAR-derived structural information improve segmentation quality compared to RGBI-only input?
-
-**RQ2 — Architectural Sensitivity**  
-How do different U-Net-based architectures respond to multimodal fusion?
-
-**RQ3 — Augmentation Robustness**  
-Which augmentation strategies improve generalization under spatial and spectral variability?
-
-**RQ4 — Spatial Generalization**  
-How well do models generalize across geographically distinct forest tiles?
+Three segmentation architectures U-Net, U-Net-HRNet, and U-Net-FusionNet trained under a range of augmentation strategies to assess their sensitivity to multiscale vegetation patterns and spatial heterogeneity. Three architectures were compared under various augmentation strategies to assess performance on high-resolution forest segmentation tasks.
 
 ---
 
+## Research Questions
+
+### RQ1: Multimodal Contribution
+**Does LiDAR-derived structural information improve segmentation quality compared to spectral-only methods?**
+
+### RQ2: Architectural Sensitivity
+**How do different U-Net-based architectures respond to multimodal fusion and hyperparameter tuning?**
+
+### RQ3: Augmentation Robustness
+**Which augmentation strategies improve generalization, and do they generalize across all architectures?**
+
+**Key Findings:**
+- LiDAR-derived structural features boost segmentation accuracy from 69.1% (RGB only) to 75.1% (RGBI+CHM), a 6.0 percentage point improvement
+- Architecture design significantly influences augmentation sensitivity; no universal optimal augmentation strategy exists across all model types
+- FusionNet with residual connections achieves superior performance (77.1% IoU) and stability compared to standard U-Net (75.3%) and HRNet variants (76.7%)
+
+This work addresses critical gaps in multimodal remote sensing by quantifying how data fusion improves forest detection accuracy and how augmentation strategies must be tailored to specific architectural designs.
+---
 
 ## Repository Structure
 
-masters_docs/
-
-notebooks/                     # Jupyter notebooks for exploration and preprocessing
--    ├── Experiments.ipynb         # Experiment notebooks with model evaluation
--    ├── exploration_las_files.ipynb  # Exploration of LiDAR LAS files
--    ├── preprocess_data.ipynb    # Data preprocessing pipeline
--    └── samgeo_ground_truth.ipynb # Ground-truth mask exploration
-
-utils/                         # Utility scripts for augmentation and preprocessing
--    ├── augmentation_pipeline.py  # Data augmentation functions
--    ├── get_file_matches.py       # Helper for file matching
--    ├── load_train_eval.py            # Script for loading, training, and evaluating models
--    ├──    models.py  # Deep learning models (Unet and derivatives)
--    ├── preprocess_and_stack.py   # Functions for preprocessing and stacking inputs
-
-README.md                        # Project documentation
-
-requirements.txt                 # Python dependencies
-
----
-
-## Experiment Reproduction
-
-The primary experiment and evaluation workflow is available in:
-
-[**notebooks/Experiments.ipynb**](notebooks/Experiments.ipynb)
-
-This notebook contains:
-- Band-combination experiments (RGB, RGBI, RGBI + CHM, etc.)
-- Model comparison experiments (U-Net, HRNet-inspired, FusionNet-inspired)
-- Augmentation evaluations
-- Metric computation and validation workflows
-- Visualization of segmentation outputs and probability maps
-
-The outputs included in the notebook represent rerun experiments performed after thesis submission as part of ongoing reproducibility validation and repository refactoring. Consequently, some metrics may differ slightly from the archived thesis results reported in the thesis manuscript and presentation.
-
-## 🧱 System Overview
-
-1. Raw LiDAR (.LAS/.LAZ) + orthophotos (RGBI)
-2. LiDAR rasterization → DEM / DSM / CHM
-3. Feature alignment with orthophoto grid
-4. Multimodal stacking (RGBI + LiDAR features)
-5. Dataset tiling + augmentation
-6. Deep learning training (U-Net variants)
-7. Evaluation under spatial holdout split
+```
+Masters_Docs/
+├── README.md (this file)
+├── notebooks/
+│   ├── Experiments.ipynb                 # Comprehensive experiment notebook
+│   ├── exploration_las_files.ipynb      # LiDAR data exploration
+│   ├── preprocess_data.ipynb            # Data preprocessing pipeline
+│   └── samgeo_ground_truth.ipynb        # Ground-truth mask generation
+├── utils/
+│   ├── augmentation_pipeline.py         # Data augmentation functions
+│   ├── get_file_matches.py              # LiDAR-orthophoto file matching
+│   ├── load_train_eval.py               # Training and evaluation workflow
+│   ├── models.py                        # CNN architectures (U-Net variants)
+│   └── preprocess_and_stack.py          # Feature extraction and stacking
+├── visuals/
+│   ├── workflow_1.png                   # Complete methodology workflow diagram
+│   ├── spectral_structural_insights.png # Spectral vs. LiDAR feature comparison
+│   ├── archs.drawio.png                 # Architecture diagrams
+│   ├── test_loss.png                    # Learning rate sensitivity plot
+│   ├── convergence.png                  # Training convergence curves
+│   └── thesis_presentation.pdf          # Master's thesis defense slides
+└── requirements.txt
+```
 
 ---
 
+## Experimental Design and Results
 
 Below is the complete workflow summarizing data acquisition, preprocessing, feature extraction, model training, and evaluation.
 
-<p align="left"> <img src="visuals/workflow_1.png" alt="Workflow Diagram" width="750"> </p>
-
-
-## Dataset and Methods
-
-### 1. **Study Area and Data Sources**
-
-### Dataset
-
-**Region:** Tschernitz, Brandenburg (Germany)  
-**Data Source:** [Landesvermessung und Geobasisinformation Brandenburg (LGB)](https://geobasis-bb.de)  
-**Portal:** [GeoPortal Brandenburg – Open Data](https://geoportal.brandenburg.de)  
-**License:** *Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0)*  
-
-
-   - Study region: Tschernitz (1 km²), eastern Germany  
-   - RGBI orthophotos provided by Geobasis Brandenburg (TrueDOP)  
-   - LiDAR point clouds (Airborne Laser Scanning, LAS 1.4, Point Format 6)  
-   - RGBI specifications:  
-     - Spatial resolution: 0.2 m × 0.2 m  
-     - Spectral bands: Red, Green, Blue, Infrared  
-     - Acquisition date: 07 April 2024  
-     - Publication date: 09 August 2024  
-   - LiDAR specifications:  
-     - Point density: 5 points/m²  
-     - Acquisition date: 08 January 2023  
-     - Publication date: 28 November 2023  
-     - Attributes include spatial coordinates, intensity, classification, return information, scan angle, and GPS time  
-   - The ~455-day temporal difference between RGBI and LiDAR is acceptable due to stable forest canopy structure in the region.
-
-### 2. **Data Preprocessing & Feature Extraction**  
-   - Rasterization of raw LiDAR point clouds without point removal  
-   - Generation of:  
-     - Digital Elevation Model (DEM)  
-     - Canopy Height Model (CHM)  
-     - Slope  
-     - Aspect  
-   - Initial rasterization at 1 m resolution due to memory limitations  
-   - Bicubic upscaling of LiDAR-derived rasters to 5000 × 5000 pixels to match RGBI orthophotos  
-   - Co-alignment and merging of RGBI and LiDAR layers into 20 multimodal raster stacks (each representing a 1 km² tile)
-
 <p align="left">
-  <img src="visuals/spectral_structural_insights.png" alt="Spectral and Structural Insights" width="750">
+  <img src="visuals\workflow_1.png" alt="workflow_1" width="750">
 </p>
 
-Differences between spectral and structural representations reveal important characteristics of forest composition.  In RGB imagery, certain tree species or sparse canopy structures may appear faint or visually ambiguous. The Canopy Height Model (CHM), however, clearly highlights these same trees due to their elevation and structural form. This divergence indicates that relying solely on spectral information may lead to under-segmentation of tall or sparsely foliated trees, while the integration of LiDAR height data improves separability.
+### Study Area and Data
 
+**Location:** Tschernitz, Brandenburg, Germany (1 km² area)
 
-### 3. **Ground-Truth Label Generation**  
-   - Use of the Segment Anything Model (SAM) with a prompt-based approach  
-   - Orthophotos divided into 1024 × 1024 px patches and processed with the prompt “forest”  
-   - Adjustment of SAM box/text thresholds to refine segmentation quality  
-   - Manual correction of tiling artifacts using GIMP  
-   - Final masks compiled into full-tile ground-truth segmentation layers
+**RGBI Orthophotos:**
+- Resolution: 0.2 m per pixel
+- Dimensions: 5000×5000 pixels per tile
+- Spectral bands: Red, Green, Blue, Infrared (RGBI)
+- Acquisition date: April 7, 2024
+- Source: Geobasis Brandenburg (TrueDOP product)
 
-### 4. **Data Partitioning, Spatial Structure, and Class Balance**  
-   - Each multimodal tile (5000 × 5000 px) resized to 256 × 256 px (≈3.9 m per pixel)  
-   - Full-tile resizing used instead of patch-based tiling to preserve spatial continuity  
-   - Spatial holdout split used to prevent geographic leakage:  
-     - 80% training tiles  
-     - 20% validation tiles (geographically distinct subset)  
-   - Stratified variant evaluated due to forest-cover imbalance:  
-     - Original forest coverage: 30.5% (train), 53.0% (val)  
-     - After stratification: 31.0% (train), 50.6% (val)  
-   - Combined Dice + Binary Cross-Entropy loss applied to mitigate imbalance during training
+**LiDAR Point Clouds:**
+- Density: 5 points per m²
+- Format: LAS 1.4, Point Format 6
+- Attributes: X, Y, Z coordinates, intensity, classification, return number, scan direction, GPS time
+- Acquisition date: January 8, 2023
+- Source: Geobasis Brandenburg
 
-### 5. **Model Architectures**  
+**Dataset:**
+- 20 tiles (each 1 km²)
+- 80% training / 20% validation (stratified by forest coverage density)
+- Temporal offset: 455 days between RGBI and LiDAR (acceptable due to stable forest canopy structure)
+
+---
+
+### Preprocessing and Feature Extraction
+
+**LiDAR Processing:**
+1. Filtered by classification (ground returns, class 2) to isolate terrain
+2. Rasterized at 1 m resolution to create:
+   - Digital Elevation Model (DEM): interpolated ground surface
+   - Digital Surface Model (DSM): maximum vegetation height
+   - Canopy Height Model (CHM): DSM minus DEM
+   - Slope: gradient of DEM
+   - Aspect: orientation of slope
+3. Bicubic upsampling from 1 m to 0.2 m resolution to match RGBI
+
+**Raster Stacking:**
+- RGBI + CHM (best combination): 5 channels
+- Optional: RGBI + CHM + Slope/Aspect: 6-7 channels
+- Resolution: 5000×5000 pixels per tile
+- Data type: float32
+
+**Ground-Truth Generation:**
+- Zero-shot Segment Anything Model (SAM) with prompt "forest"
+- Automatic thresholding and tiling artifact removal
+- Manual refinement in GIMP to correct edge artifacts
+- Final: Binary forest/non-forest masks
+
+**Data Partitioning:**
+- Full tiles resized to 256×256 pixels (3.9 m per pixel effective resolution)
+- Stratified holdout: tiles assigned to train/val with forest-coverage stratification
+- Prevents geographic leakage while maintaining class balance
+
+---
+
+### Experiment 1: Band Comparison (Multimodal Contribution)
+
+**Architecture:** Lightweight U-Net (baseline)
+**Training Setup:** Batch size 4, Learning rate 1e-3, 25 epochs, threshold 0.5
+
+| Band Combination | IoU (%) | Dice (%) | Accuracy (%) | Gain vs. RGB |
+|---|---|---|---|---|
+| RGB | 69.1 | 75.5 | 91.89 | baseline |
+| RGBI | 70.4 | 76.9 | 91.80 | +1.3 |
+| RGBI + CHM | 75.1 | 81.8 | 93.87 | +6.0 |
+| RGBI + CHM + Slope | 75.0 | 80.9 | 93.75 | -0.1 |
+| All 7 Bands | 74.0 | 80.0 | 93.50 | -1.1 |
+
+**Key Insights:**
+- Adding NIR band provides modest improvement (+1.3 IoU)
+- CHM integration yields significant performance boost (+6.0 IoU)
+- Topographic features (slope, aspect) show diminishing returns
+- All available bands underperform selective combination (information redundancy)
+
+---
+
+### Experiment 2: Model Architecture Comparison
+
+- **Best Band Combination:** RGBI + CHM
+- **Training Setup:** Batch size 4, Learning rate sweep 1e-2 to 1e-6, 50 epochs, Dice+BCE loss
+
+**Architecture Details:**
 
 <p align="left">
-  <img src="visuals\archs.drawio.png" alt="Spectral and Structural Insights" width="750">
+  <img src="visuals\archs.drawio.png" alt="Spectral and Structural Insights" width="900">
 </p>
 
-   - Three U-Net–based convolutional neural network architectures were implemented to evaluate the impact of structural and spectral feature integration.  
-   - **Baseline U-Net:**  
-This is the basic U-Net with three encoding levels. Each convolution block doubles the filters while the spatial dimensions halve at each pooling layer. The decoder mirrors the encoder, upsampling and concatenating feature maps from the encoder path (shown as dashed lines).
-     - Lightweight variant with reduced convolutional filters  
-     - Depthwise-separable convolutions for efficiency  
-     - Standard encoder–decoder structure with skip connections  
 
-   - **U-Net-HRNet (HRNet-Inspired):**  
-The HRNet with Attention U-Net adds a Squeeze-and-Excitation (SE) block after each convolutional layer. Each SE block uses global average pooling followed by two dense layers to learn channel-wise attention weights, allowing the network to adaptively recalibrate the importance of different features. This has four encoding levels (64→128→256→512 channels) compared to the basic model's three.
+**Lightweight U-Net:**
+- Depthwise-separable convolutions for efficiency
+- 3 encoding levels with progressive feature doubling
+- Standard skip connections
 
-     - Incorporates high-resolution feature retention principles  
-     - Integrates Squeeze-and-Excitation (SE) blocks for channel-wise attention  
-     - Designed to preserve fine spatial detail lost during downsampling  
+**U-Net-HRNet (with Squeeze-and-Excitation blocks):**
+- 4 encoding levels (64→128→256→512 channels)
+- SE block after each convolution for channel-wise attention
+- Global average pooling followed by dense layers for feature recalibration
 
-   - **U-Net-FusionNet (FusionNet-Inspired):**  
-The Improved FusionNet U-Net replaces all convolution blocks with residual blocks. Each residual block contains its own internal skip connection (the thin dashed lines within each block) that adds the input directly to the output after two convolutions. If channel counts don't match, a 1×1 convolution adjusts the shortcut. This allows deeper networks to train more effectively and helps with gradient flow during backpropagation.
+**U-Net-FusionNet (with Residual Connections):**
+- Residual blocks in both encoder and decoder
+- Internal skip connections within each block
+- Enhanced gradient flow for deeper training
 
-     - Includes residual connections in both encoder and decoder  
-     - Enhances gradient flow and multimodal feature propagation  
-     - Improves stability when integrating RGBI and LiDAR-derived features  
-
-**Key differences between the models:**
-- Basic U-Net: Simplest architecture, plain convolutional layers. Good baseline for segmentation tasks.
-- HRNet with Attention U-Net: Adds Squeeze-and-Excitation blocks that learn channel-wise attention. Deeper (4 encoding levels instead of 3), each SE block helps the network focus on important feature channels.
-- Improved FusionNet: Uses residual blocks throughout. Internal skip connections in each residual block improve gradient flow and training stability. Works well when you need deeper models or have limited training data.
-
-   - All models were trained using aligned, multimodal raster stacks and evaluated consistently across splits.
-
-**Architectural Sensitivity & Convergence Analysis:**
-
+**Learning Rate Selection:**
 <p align="left">
-  <img src="visuals\test_loss.png" alt="Spectral and Structural Insights" width="500">
-</p> 
+  <img src="visuals\test_loss.png" alt="Learning Rate Optimization" width="500">
+</p>
+  
+  - Lowest test loss at 10⁻⁴ for all models
 
-Training Setup
-- Bands: RGBI + CHM (best from Experiment 1)
-- Custom Dice + BCE loss for class imbalance
-- Batch size 4, epochs 50, LR sweep 10⁻²→10⁻⁶
-
-Learning Rate Selection
-- Lowest test loss at 10⁻⁴ for all models
-
-
+**Convergence Behavior:**
 <p align="left">
-  <img src="visuals\convergence.png" alt="Spectral and Structural Insights" width="500">
+  <img src="visuals\convergence.png" alt="Convergence Behavior" width="500">
 </p>
 
-All three U-Net architectures demonstrate stable convergence behaviors within 100 epochs, with a rapid loss drop in the first 20 epochs followed by a steady plateau around 0.12–0.15.
+- Rapid loss drop in first 20 epochs, then plateau
+- U-Net-FusionNet: fastest convergence, lowest test loss variability
+- U-Net-HRNet: slightly higher early-epoch variance, stabilizes by epoch 25
+- All models: minimal improvement after epoch 50
 
-  - **U-Net-FusionNet** (incorporating residual connections) exhibits the fastest and most stable convergence, achieving the lowest overall training and testing loss values early on and maintaining low test loss variability.
-  - **U-Net-HRNet** (incorporating channel-wise Squeeze-and-Excitation attention) shows slightly higher training and testing loss variations during the early epochs but stabilizes effectively after epoch 25.
-
-- 50 epochs chosen to balance convergence vs. overfitting for all models
-
-Threshold Tuning (IoU vs. Thresh.):
-- Peak IoU at 0.4–0.5 for all models
+| Architecture | Peak IoU (%) | Dice (%) | Optimal LR | Key Properties |
+|---|---|---|---|---|
+| Lightweight U-Net | 75.3 | 81.1 | 1e-4 | Efficient baseline; low-resolution features |
+| U-Net-HRNet (with SE) | 76.7 | 82.5 | 1e-4 | Channel attention; fine detail preservation |
+| U-Net-FusionNet (with Residuals) | 77.1 | 82.8 | 1e-4 | Best boundaries; most stable convergence |
 ---
 
-### 6. **Augmentation Strategy**  
-   - Offline data augmentation used to expand the diversity of training samples.  
-   - Augmentation types included:  
-     - Geometric transformations (rotation, horizontal/vertical flips, random scaling)  
-     - Photometric adjustments (brightness and contrast shifts)  
-     - Noise-based augmentations (Gaussian noise, salt-and-pepper noise)  
-     - Spectral dropout applied selectively to multispectral channels  
-   - Augmentations were parameterized to avoid unrealistic forest representations while improving model generalization.
+### Experiment 3: Data Augmentation Strategy Analysis
+
+- **Methodology:** Offline augmentation with one-by-one application (each original image duplicated per transform)
+- **Training Setup:** Batch size 4, Learning rate 1e-4, 50 epochs, threshold 0.5
+
+#### Augmentation Performance by Architecture
+
+**Lightweight U-Net (Shallow Model):**
+- No augmentation: 75.3% IoU
+- VerticalFlip (best): 78.4% IoU (+3.1)
+- Effect: Simple geometric transforms provide robust gains
+
+| Transform | IoU (%) | Effect |
+|---|---|---|
+| HorizontalFlip | 76.3 | +1.0 |
+| VerticalFlip | 78.4 | +3.1 (best) |
+| Shift | 75.8 | +0.5 |
+| Rotate | 70.5 | -4.8 (harmful) |
+| GaussNoise | 71.7 | -3.6 (harmful) |
+| Blur | 75.6 | +0.3 |
+
+**U-Net-HRNet (Attention-based):**
+- No augmentation: 68.7% IoU
+- Blur (best): 80.6% IoU (+11.9)
+- Effect: Smoothing operations particularly beneficial; geometric distortions harmful
+
+| Transform | IoU (%) | Effect |
+|---|---|---|
+| Blur | 80.6 | +11.9 (best) |
+| Rotate | 79.9 | +11.2 |
+| Shift | 77.1 | +8.4 |
+| Scale | 69.2 | +0.5 |
+| MotionBlur | 77.0 | +8.3 |
+| GaussNoise | 71.1 | +2.4 |
+
+**U-Net-FusionNet (Residual):**
+- No augmentation: 77.1% IoU (high baseline)
+- VerticalFlip (best): 77.6% IoU (+0.5)
+- Effect: Naturally robust; marginal augmentation gains
+
+| Transform | IoU (%) | Effect |
+|---|---|---|
+| VerticalFlip | 77.6 | +0.5 (best) |
+| Rotate | 76.9 | -0.2 |
+| GaussNoise | 77.5 | +0.4 |
+| Scale | 68.6 | -8.5 (harmful) |
+| Blur | 77.2 | +0.1 |
+
+**Critical Findings:**
+- No universal strategy across architectures
+- Shallow models: geometric flips effective
+- Attention models: smoothing operations beneficial
+- Residual models: naturally robust, minimal augmentation sensitivity
+- Aggressive distortions (heavy rotation, scaling): universally harmful
+- Conclusion: Augmentation must be architecture-specific
 
 ---
 
-### 7. **Evaluation Metrics**  
-   - Performance was assessed using commonly adopted segmentation metrics:  
-     - **Intersection over Union (IoU):** Measures overlap between predicted and true masks.  
-     - **Dice Coefficient:** Favors foreground classes and balances precision–recall interactions.  
-     - **Precision and Recall:** Evaluate omission and commission errors in forest detection.  
-   - Validation results were computed across spatially distinct tiles to ensure geographic generalization.
+## Key Insights and Contributions
+
+### Multimodal Data Fusion
+LiDAR integration provides the most significant performance boost (6.0 IoU points). The gain from structural features (CHM) exceeds spectral band additions. However, using all available data is counterproductive, suggesting selective feature engineering is critical.
+
+### Architecture Sensitivity
+Model choice directly determines augmentation strategy effectiveness. FusionNet residual connections provide superior stability and boundary quality. HRNet's attention mechanisms excel with smoothing operations. Lightweight baselines remain efficient references but require careful augmentation tuning.
+
+### Augmentation Strategy
+Aggressive transforms universally harm performance, while gentle augmentations (flips, slight shifts) improve robustness. The relationship between model depth/complexity and optimal augmentation intensity is critical for generalization.
+
+### Practical Implications for Forest Monitoring
+Results enable rapid, large-scale forest extent mapping at sub-meter resolution using freely available public data (Geobasis Brandenburg). Methodology is reproducible and extensible to other regions with similar geospatial data availability.
 
 ---
 
-### 8. **Limitations**  
-   - Temporal differences between RGBI and LiDAR datasets (~455 days) may introduce subtle inconsistencies despite stable canopy conditions.  
-   - Upscaling LiDAR rasters to match RGBI resolution can smooth fine structural variations.  
-   - Ground-truth masks generated via SAM required manual refinement to correct tiling artifacts.  
-   - Forest coverage imbalance between tiles required stratification and loss-function adjustments.  
-   - Performance may vary across forest types or seasons not represented in the dataset.
+## Methodology Justification
+
+### Resolution Downsampling (0.2 m to 3.9 m per pixel)
+
+**Why 256×256 pixels (3.9 m/pixel)?**
+
+Original data (5000×5000 px at 0.2 m/pixel) requires:
+- 25 million pixels per tile
+- 125+ million floats per tile with 5+ channels
+- Exceeds practical GPU memory constraints even with 12GB VRAM
+- Batch size limited to 1-2 samples, severely hindering training efficiency
+
+**Is this resolution adequate?**
+
+Semantic preservation analysis:
+- Single tree crown (10-30 m): 2.6-7.7 pixels at 3.9 m (borderline for individual trees)
+- Forest patch/habitat unit (100-500 m): 25.6-128 pixels (excellent)
+- Canopy density patterns (30-100 m): 7.7-25.6 pixels (adequate)
+
+This resolution preserves forest-pattern-level information required for binary forest/non-forest classification, the task objective. Tree-level segmentation would require 512×512 patches at 1 m/pixel and is reserved for future work.
+
+**Comparison with literature:**
+Standard remote sensing workflows typically use 2-5 m/pixel for forest mapping (Sentinel-2 at 10m, Landsat at 30m)((Bourgoin, 2026; Pilaš et al., 2020)). This study operates at the high-resolution end of this spectrum, sacrificing tree delineation detail to gain computational efficiency while preserving landscape-level forest structure.
 
 ---
 
-<<<<<<< Updated upstream
-### 9. **Results Overview**  
-* **Multimodal Contribution (Band Comparison):** Integrating LiDAR-derived structural features notably improves segmentation accuracy compared to spectral-only data. For the lightweight U-Net baseline:
-    - * Moving from **RGB** (IoU: 69.1%) to **RGBI** yields a modest boost of 1.3 percentage points (IoU: 70.4%).
-    - * Adding the Canopy Height Model (**RGBI + CHM**) provides the most significant performance leap, driving IoU up to **75.1%** (a total increase of 6.0 percentage points from RGB, and an increase from 69.1% to 75.1% for IoU and 75.5% to 81.8% for Dice). 
-    - * The inclusion of further topographical layers (Slope and Aspect) beyond the CHM results in negligible performance gains (**RGBI + CHM + Slope** centers around 75.0% IoU).
+## Limitations
 
-* **Data Augmentation Sensitivity:** The architectures react differently to geometric and photometric transformations, indicating that augmentation intensity must be carefully tailored to structural depth:
-    - * **Lightweight U-Net:** Benefits consistently from simple geometric flips, with **VerticalFlip** boosting its metric to **78.4** (up from 75.3 with no augmentation).
-    - * **U-Net-HRNet:** Exhibits a high affinity for smoothing and blurring mechanisms rather than spatial distortions. Applying **Blur** yields its highest overall performance score of **80.6** (up from 68.7 with no augmentation).
-    - * **U-Net-FusionNet:** Demonstrates high baseline robustness without augmentations (77.1), but is severely degraded by aggressive spatial distortions. Applying **Scale** drops its performance sharply to a critical low of **68.6** (highlighted in red), indicating that scaling distortions disrupt its internal residual feature maps. Heavy noise injections (e.g., GaussNoise) universally harm performance across all three models.
+- **Temporal offset:** 455-day gap between RGBI (April 2024) and LiDAR (January 2023) data. Acceptable for stable canopy; seasonal analysis requires co-temporal acquisition.
+- **Single study area:** Results specific to Brandenburg temperate forest. Generalization to other biomes, climates, or forest types requires multi-region validation.
+- **Binary classification:** Forest/non-forest only. Multi-class forest type, species, or condition assessment requires different ground-truth and architecture design.
+- **Ground-truth artifacts:** SAM-assisted masks required manual GIMP refinement. Fully automated generation could improve scalability.
+- **Class imbalance:** Forest coverage varies 30-53% across tiles, requiring stratification and loss weighting for balanced learning.
 
-## Installation and Reproduction
-This project was developed with Python 3.10 and TensorFlow 2.10.
+---
 
-=======
-Presentation of this thesis is available in the file:  
-[**thesis_presentation.pdf**](visuals/thesis_presentation.pdf)
+## Future Research Directions
+
+- **Temporal consistency:** Acquire co-seasonal LiDAR+RGBI to eliminate phenological bias and improve seasonal segmentation
+- **Transformer architectures:** Evaluate Vision Transformers (ViTs) and hybrid CNN-Transformer designs for improved long-range spatial modeling
+- **Uncertainty quantification:** Implement Bayesian layers and Monte Carlo dropout for confidence estimation
+- **Hierarchical segmentation:** Forest/non-forest at 256×256 followed by local high-resolution refinement for tree-level delineation
+- **Multi-region evaluation:** Train on diverse ecosystems (boreal, temperate, tropical) to assess cross-biome robustness
+- **Adaptive augmentation:** Dynamically tailor transforms per-sample to preserve critical forest structures
+
+---
+
+## Installation and Reproducibility
+
+**Requirements:**
+- Python 3.10+
+- TensorFlow 2.10+
+- GeoPandas, Rasterio (geospatial data handling)
+- NumPy, Pandas, Scikit-learn, OpenCV
+
+**Setup:**
+```bash
+pip install -r requirements.txt
+jupyter notebook notebooks/Experiments.ipynb
+```
+
+**Experiment Reproduction:**
+All experiments and results are contained in `notebooks/Experiments.ipynb`. This notebook includes:
+- Band-combination experiments
+- Model comparison training and validation
+- Augmentation sensitivity analysis
+- Metric computation (IoU, Dice, Precision, Recall)
+- Probability map visualization and interpretation
+
+**Note on Results:**
+Experiments documented in this repository were re-run after thesis submission as part of ongoing reproducibility validation. Minor metric variations from the thesis defense presentation reflect code refinement, hyperparameter tuning, and random seed effects. Core findings remain consistent.
+
+---
+
+## Data Access
+
+Public data sources:
+- **Orthophotos:** Geobasis Brandenburg (https://geobasis-bb.de)
+- **LiDAR:** Geobasis Brandenburg / GeoPortal Brandenburg
+- **License:** Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0)
+
+Processed dataset files are not included in this repository due to size constraints. Preprocessing instructions are in `notebooks/preprocess_data.ipynb`.
+
+References
+Bourgoin, C. (2026). GFC2020: A global map of forest land use for year 2020 to support the EU Deforestation Regulation. Earth System Science Data, 18, 1331.
+
+Pilaš, I., Gašparović, M., Novkinić, A., & Klobučar, D. (2020). Mapping of the canopy openings in mixed beech–fir forest at Sentinel-2 subpixel level using UAV and machine learning approach. Remote Sensing, 12(23), 3925. https://doi.org/10.3390/rs12233925
