@@ -127,8 +127,8 @@ Below is the complete workflow summarizing data acquisition, preprocessing, feat
 
 ### Experiment 1: Band Comparison (Multimodal Contribution)
 
-**Architecture:** Lightweight U-Net (baseline)
-**Training Setup:** Batch size 4, Learning rate 1e-3, 25 epochs, threshold 0.5
+- **Architecture:** Lightweight U-Net (baseline)
+- **Training Setup:** Batch size 4, Learning rate 1e-3, 25 epochs, threshold 0.5
 
 | Band Combination | IoU (%) | Dice (%) | Accuracy (%) | Gain vs. RGB |
 |---|---|---|---|---|
